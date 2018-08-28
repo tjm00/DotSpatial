@@ -10,7 +10,6 @@ using System.Linq;
 using System.Windows.Forms;
 using DotSpatial.Data;
 using DotSpatial.Data.Forms;
-using DotSpatial.Serialization;
 using DotSpatial.Symbology;
 using DotSpatial.Symbology.Forms;
 
@@ -24,7 +23,7 @@ namespace DotSpatial.Controls
     {
         #region Fields
 
-        private readonly ContextMenu _contextMenu;
+        private readonly ContextMenuStrip _contextMenu;
         private readonly TextBox _editBox;
         private readonly Icon _icoChecked;
         private readonly Icon _icoUnchecked;
@@ -57,7 +56,7 @@ namespace DotSpatial.Controls
             RootNodes = new List<ILegendItem>();
             _icoChecked = Images.Checked;
             _icoUnchecked = Images.Unchecked;
-            _contextMenu = new ContextMenu();
+            _contextMenu = new ContextMenuStrip();
             _selection = new HashSet<ILegendItem>();
             _editBox = new TextBox
             {
@@ -506,46 +505,46 @@ namespace DotSpatial.Controls
                 ILineCategory lc = lb.Item as ILineCategory;
                 if (lc != null)
                 {
-                    DetailedLineSymbolDialog lsDialog = new DetailedLineSymbolDialog(lc.Symbolizer);
-                    lsDialog.ShowDialog();
-                    ILineSymbolizer sel = lc.Symbolizer.Copy();
-                    sel.SetFillColor(Color.Cyan);
-                    lc.SelectionSymbolizer = sel;
+                    using (var lsDialog = new DetailedLineSymbolDialog(lc.Symbolizer))
+                    {
+                        lsDialog.ShowDialog();
+                    }
                 }
 
                 IPointCategory pc = lb.Item as IPointCategory;
                 if (pc != null)
                 {
-                    DetailedPointSymbolDialog dlg = new DetailedPointSymbolDialog(pc.Symbolizer);
-                    dlg.ShowDialog();
-                    IPointSymbolizer ps = pc.Symbolizer.Copy();
-                    ps.SetFillColor(Color.Cyan);
-                    pc.SelectionSymbolizer = ps;
+                    using (var dlg = new DetailedPointSymbolDialog(pc.Symbolizer))
+                    {
+                        dlg.ShowDialog();
+                    }
                 }
 
                 IPolygonCategory polyCat = lb.Item as IPolygonCategory;
                 if (polyCat != null)
                 {
-                    DetailedPolygonSymbolDialog dlg = new DetailedPolygonSymbolDialog(polyCat.Symbolizer);
-                    dlg.ShowDialog();
-                    IPolygonSymbolizer ps = polyCat.Symbolizer.Copy();
-                    ps.SetFillColor(Color.Cyan);
-                    ps.OutlineSymbolizer.SetFillColor(Color.DarkCyan);
-                    polyCat.SelectionSymbolizer = ps;
+                    using (var dlg = new DetailedPolygonSymbolDialog(polyCat.Symbolizer))
+                    {
+                        dlg.ShowDialog();
+                    }
                 }
 
                 IFeatureLayer fl = lb.Item as IFeatureLayer;
                 if (fl != null)
                 {
-                    LayerDialog layDialog = new LayerDialog(fl, new FeatureCategoryControl());
-                    layDialog.ShowDialog();
+                    using (var layDialog = new LayerDialog(fl, new FeatureCategoryControl()))
+                    {
+                        layDialog.ShowDialog();
+                    }
                 }
 
                 IRasterLayer rl = lb.Item as IRasterLayer;
                 if (rl != null)
                 {
-                    LayerDialog dlg = new LayerDialog(rl, new RasterCategoryControl());
-                    dlg.ShowDialog();
+                    using (var dlg = new LayerDialog(rl, new RasterCategoryControl()))
+                    {
+                        dlg.ShowDialog();
+                    }
                 }
 
                 IColorCategory cb = lb.Item as IColorCategory;
@@ -799,26 +798,13 @@ namespace DotSpatial.Controls
         /// </summary>
         /// <param name="parent">The parent</param>
         /// <param name="mi">The menu item.</param>
-        private static void AddMenuItem(Menu.MenuItemCollection parent, SymbologyMenuItem mi)
+        private static void AddMenuItem(ToolStripItemCollection parent, SymbologyMenuItem mi)
         {
-            MenuItem m;
-            if (mi.Icon != null)
-            {
-                m = new IconMenuItem(mi.Name, mi.Icon, mi.ClickHandler);
-            }
-            else if (mi.Image != null)
-            {
-                m = new IconMenuItem(mi.Name, mi.Image, mi.ClickHandler);
-            }
-            else
-            {
-                m = new IconMenuItem(mi.Name, mi.ClickHandler);
-            }
-
+            ToolStripMenuItem m = new ToolStripMenuItem(mi.Name, mi.Image, mi.ClickHandler);
             parent.Add(m);
             foreach (SymbologyMenuItem child in mi.MenuItems)
             {
-                AddMenuItem(m.MenuItems, child);
+                AddMenuItem(m.DropDownItems, child);
             }
         }
 
@@ -1054,14 +1040,13 @@ namespace DotSpatial.Controls
                 // right click shows the context menu
                 if (e.ItemBox.Item.ContextMenuItems == null) return;
 
-                _contextMenu.MenuItems.Clear();
+                _contextMenu.Items.Clear();
                 foreach (SymbologyMenuItem mi in e.ItemBox.Item.ContextMenuItems)
                 {
-                    AddMenuItem(_contextMenu.MenuItems, mi);
+                    AddMenuItem(_contextMenu.Items, mi);
                 }
 
                 _contextMenu.Show(this, e.Location);
-                _contextMenu.MenuItems.Clear();
             }
         }
 

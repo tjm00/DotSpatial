@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Change Log
 All notable changes to this project will be documented in this file.
 
@@ -120,3 +121,15 @@ Be aware that code written for 1.9 will not work out of the box because DotSpati
 - Some errors in SetSelectable plugin (#1008)
 - Crash when attempting to use a serial GPS device on Mono
 - Clear the selection inside FeatureLayer.RemoveSelectedFeatures so the removed features are no longer contained when IFeatureSet.FeatureRemoved is raised
+- In InRamImageData.Open don't draw the image unscaled because this can cause the image not to be drawn
+- FeatureTypeFromGeometryType Method updated to work with GeometryCollection (#1044)
+- The SpatiaLite plugin to be able to load SpatiaLite databases of version 4 and higher (#1061)
+- WebMap-Plugin fails fetching tiles for specific WMS (#1074)
+- Plugins/WFSClient: Feature fetching fails on systems w NumberFormatInfo.NumberDecimalSeparator != '.' (#1081)
+- showMargin can be checked as soon as layoutControl is not null (#1091) 
+- don't assign the 'EndRow' property to itself in BinaryRaster.OpenWindow (#1089)
+- assign "D_ITRF_1997" to ITRF1997.GeographicInfo.Datum.Name instead of ITRF1997.GeographicInfo.Name because this is the name of the datum and not the GeographicInfo (#1090)
+- Update Brutile version in Webmap? (#800)
+- SetSelectable Plugin Not Included in Release Build (#1106)
+- Error on OpenFile with special SPHEROID string (#1142)
+- Shape File Saves with Wrong DataTypes (#1005)
